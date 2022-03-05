@@ -1,19 +1,23 @@
-import { useState } from 'react';
-import { BoardCell } from './style';
+import { useEffect, useState } from 'react';
+// import { BoardCell, SneakHead } from './style';
+import styled from 'styled-components';
 
-const Cell = ( { type } ) => {
-    // const [ color, setColor ] = useState();
-    
-    // const style = {
-    //     height: "10px",
-    //     width: "10px",
-    //     //border: "1px black solid"
-    //     backgroundColor: color
-    // };
 
-    const { celltype } = type;
+const celltypes = { cell: `red`, head: `black` }
 
-    console.log(celltype);
+const Cell = ( { props } ) => {
+
+    const { type } = props;
+    const [ color, setColor ] = useState(type);
+
+    const BoardCell = styled.section`
+        height: 10px;
+        width: 10px;
+        background-color: ${ celltypes?.[color] };
+    `;
+
+    console.log(celltypes?.[type])
+
     return(
         <BoardCell></BoardCell>
     )
