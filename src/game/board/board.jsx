@@ -24,7 +24,7 @@ const move = (arr) => {
 
     let res = JSON.parse(JSON.stringify(arr));
     console.log('res', res.length, res[0].length);
-    let idx = 0, idy = 1;
+    let idx = -1, idy = 0;
     res = res.map( (row, y) => row.map( (el, x) => { 
         if(el?.type == 'head') {
             idx += x;
@@ -48,16 +48,16 @@ const move = (arr) => {
         }
         return el;
     }));
+    console.log(idy,'idy');
 
     console.log('res', res.length, res[0].length);
     console.log(res);
-    console.log('length',res[idy].length)
-    console.log(idy,'idy');
+    // console.log('length',res[idy].length)
     // res[idy][idx] = { type: 'cell' };
-    if(idy > (res[idy - 1].length - 1)) {idy = 0;}
-    if(idy < 0) {idy = res[idy + 1].length - 1;}
-    if(idx > (res[idy - 1].length - 1)) {idx = 0;}
-    if(idx < 0) {idx = res[idy].length - 1;}
+    if(idy > (res.length - 1)) {idy = 0;}
+    else if(idy < 0) {idy = res.length - 1;}
+    else if(idx > (res[idy].length - 1)) {idx = 0;}
+    else if(idx < 0) {idx = res[idy].length - 1;}
 
 
     res[idy][idx].type = 'head';
