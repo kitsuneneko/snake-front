@@ -4,42 +4,74 @@ import Container from "./style";
 
 
 const createBoard = (x, y) => {
-    return(Array(y).fill().map( col => Array(x).fill( { type: 'cell' } )));
+    return(Array(y).fill().map( col => Array(x).fill( { type: 'cell', tailcount: -1 } )));
 }
 
 
 const start = (arr) => {
 
     let res = JSON.parse(JSON.stringify(arr));
-    res[0][0] = { type: 'head' };
+    res[0][0] = { type: 'head', tailcount: -1 };
     return res;
 }
+
+
+const tailsize = 5;
+
+
 
 const move = (arr) => {
 
     let res = JSON.parse(JSON.stringify(arr));
-    console.log(res);
-    let idx = 0, idy = 0;
-    res.map( (row, y) => row.map( (el, x) => { 
+    console.log('res', res.length, res[0].length);
+    let idx = 0, idy = 1;
+    res = res.map( (row, y) => row.map( (el, x) => { 
         if(el?.type == 'head') {
-            idx = x;
-            idy = y;
+            idx += x;
+            idy += y;
+            el = { type: 'tail', tailcount: tailsize};
+            console.log('cell',x,y);
         } 
+        return el;
     }));
 
-    res[idy][idx] = { type: 'cell' };
-    if(idx > 8) {idx = -1;}
-    res[idy][++idx] = { type: 'head'};
-    console.log(idx,idy);
+    res = res.map( (row, y) => row.map( (el, x) => { 
+        if(el?.tailcount > 0) {
+            el.tailcount = el.tailcount - 1;
+            console.log(el?.tailcount)
+
+        } 
+        if(el?.tailcount == 0)
+        {
+            el.type = 'cell';
+            el.tailcount = el.tailcount - 1;
+        }
+        return el;
+    }));
+
+    console.log('res', res.length, res[0].length);
+    console.log(res);
+    console.log('length',res[idy].length)
+    console.log(idy,'idy');
+    // res[idy][idx] = { type: 'cell' };
+    if(idy > (res[idy - 1].length - 1)) {idy = 0;}
+    if(idy < 0) {idy = res[idy + 1].length - 1;}
+    if(idx > (res[idy - 1].length - 1)) {idx = 0;}
+    if(idx < 0) {idx = res[idy].length - 1;}
+
+
+    res[idy][idx].type = 'head';
     
     return res;
 }
 
 
-const Board = ({ x = 10, y = 10 }) => {
+const Board = ({ boxSize, boxResolution }) => {
+    const { x, y } = boxSize;
     const [ cells, setCells ] = useState(createBoard(x,y));
+    const [ direction, setDirection ] = useState();
+    console.log(x,y);
 
-    // console.log(cells);
 
     useEffect(() => { setCells(start(cells))
     },[])
@@ -47,14 +79,14 @@ const Board = ({ x = 10, y = 10 }) => {
     useEffect(() => { 
         const timer = setInterval(() => {
             setCells(move(cells))
-        }, 10); 
+        }, 100); 
 
         return () => clearInterval(timer);
     },[cells])
     const board = cells.map( (row, y) => row.map( (value, x) => <Cell key={`${x}-${y}`} props={ value }/> ) );
 
     return(
-        <Container>
+        <Container resolution={ boxResolution }>
             { board }
         </Container>
     );

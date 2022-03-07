@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 
-const ctype = { cell: `red`, head: `black` }
+const ctype = { cell: null, head: `orange`, tail: 'lightgreen' }
 
 const BoardCell = styled.section`
-    height: 10px;
-    width: 10px;
+    height: 50px;
+    width: 50px;
     background-color: ${({type}) => ctype?.[type]};
     `;
 
