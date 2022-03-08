@@ -11,26 +11,31 @@ const createBoard = (x, y) => {
 const start = (arr) => {
 
     let res = JSON.parse(JSON.stringify(arr));
-    res[0][0] = { type: 'head', tailcount: -1 };
+    res[2][2].type = 'head';
     return res;
 }
 
 
 const tailsize = 5;
 
+const dir = { 
+              right: { x: 1, y: 0 }, 
+              left: { x: -1, y: 0 },
+              up: { x: 0, y: 1 }, 
+              down: { x: 0, y: -1 }
+            };
 
-
-const move = (arr) => {
+const move = (arr, direction) => {
 
     let res = JSON.parse(JSON.stringify(arr));
-    console.log('res', res.length, res[0].length);
-    let idx = -1, idy = 0;
+    let { x: idx, y: idy } = dir?.[direction];
+    // let idx = 1, idy = 0;
+    console.log(dir?.[direction]);
     res = res.map( (row, y) => row.map( (el, x) => { 
         if(el?.type == 'head') {
             idx += x;
             idy += y;
             el = { type: 'tail', tailcount: tailsize};
-            console.log('cell',x,y);
         } 
         return el;
     }));
@@ -38,8 +43,6 @@ const move = (arr) => {
     res = res.map( (row, y) => row.map( (el, x) => { 
         if(el?.tailcount > 0) {
             el.tailcount = el.tailcount - 1;
-            console.log(el?.tailcount)
-
         } 
         if(el?.tailcount == 0)
         {
@@ -48,12 +51,8 @@ const move = (arr) => {
         }
         return el;
     }));
-    console.log(idy,'idy');
 
-    console.log('res', res.length, res[0].length);
-    console.log(res);
-    // console.log('length',res[idy].length)
-    // res[idy][idx] = { type: 'cell' };
+
     if(idy > (res.length - 1)) {idy = 0;}
     else if(idy < 0) {idy = res.length - 1;}
     else if(idx > (res[idy].length - 1)) {idx = 0;}
@@ -66,24 +65,24 @@ const move = (arr) => {
 }
 
 
-const Board = ({ boxSize, boxResolution }) => {
+const Board = ({ boxSize, boxResolution, direction }) => {
     const { x, y } = boxSize;
+    const cellSize = { width: boxResolution?.width / x, height: boxResolution?.height / y };
+
     const [ cells, setCells ] = useState(createBoard(x,y));
-    const [ direction, setDirection ] = useState();
-    console.log(x,y);
-
-
-    useEffect(() => { setCells(start(cells))
+    
+    useEffect(() => { 
+        setCells(start(cells))
     },[])
 
     useEffect(() => { 
         const timer = setInterval(() => {
-            setCells(move(cells))
+            setCells(move(cells, direction))
         }, 100); 
 
         return () => clearInterval(timer);
     },[cells])
-    const board = cells.map( (row, y) => row.map( (value, x) => <Cell key={`${x}-${y}`} props={ value }/> ) );
+    const board = cells.map( (row, y) => row.map( (value, x) => <Cell key={`${x}-${y}`} props={ value } cellSize={ cellSize }/> ) );
 
     return(
         <Container resolution={ boxResolution }>

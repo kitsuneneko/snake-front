@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
 const Container = styled.section`
-    height: ${({resolution}) => resolution?.height};
-    width: ${({resolution}) => resolution?.width};
+    height: ${({resolution}) => resolution?.height}px;
+    width: ${({resolution}) => resolution?.width}px;
     background-color: silver;
     display: flex;
     flex-wrap: wrap-reverse;

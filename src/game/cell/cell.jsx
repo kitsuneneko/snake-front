@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { BoardCell } from './style';
 
 
-const Cell = ( { props } ) => {
-
+const Cell = ( { props, cellSize } ) => {
+    
     const { type } = props;
     const [ color, setColor ] = useState(type);
 
@@ -13,7 +13,7 @@ const Cell = ( { props } ) => {
 
     
     return(
-        <BoardCell type={color}/>
+        <BoardCell type={color} cellSize={cellSize}/>
     );
 };
 
