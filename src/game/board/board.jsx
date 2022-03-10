@@ -4,7 +4,7 @@ import Container from "./style";
 
 
 const createBoard = (x, y) => {
-    return(Array(y).fill().map( col => Array(x).fill( { type: 'cell', tailcount: -1 } )));
+    return(Array(y).fill().map( col => Array(x).fill( { type: 'cell', tailcount: 0 } )));
 }
 
 
@@ -25,6 +25,17 @@ const dir = {
               down: { x: 0, y: -1 }
             };
 
+
+const makeFood = (arr, sizeX, sizeY) => {
+    let res = JSON.parse(JSON.stringify(arr));
+    // res[6][6].type = 'food';
+    const [ x , y ] = [Math.floor(Math.random() * sizeX), Math.floor(Math.random() * sizeY)]
+    res[y][x].type = 'food';
+    
+    return res;
+
+}
+
 const move = (arr, direction) => {
 
     let res = JSON.parse(JSON.stringify(arr));
@@ -41,10 +52,10 @@ const move = (arr, direction) => {
     }));
 
     res = res.map( (row, y) => row.map( (el, x) => { 
-        if(el?.tailcount > 0) {
+        if(el?.tailcount > 1) {
             el.tailcount = el.tailcount - 1;
         } 
-        if(el?.tailcount == 0)
+        else if(el?.tailcount == 1)
         {
             el.type = 'cell';
             el.tailcount = el.tailcount - 1;
@@ -82,6 +93,17 @@ const Board = ({ boxSize, boxResolution, direction }) => {
 
         return () => clearInterval(timer);
     },[cells])
+
+
+    useEffect(() => { 
+        const timer = setInterval(() => {
+            setCells(makeFood(cells, x, y))
+        }, 1000); 
+
+        return () => clearInterval(timer);
+    },[cells])
+
+
     const board = cells.map( (row, y) => row.map( (value, x) => <Cell key={`${x}-${y}`} props={ value } cellSize={ cellSize }/> ) );
 
     return(
