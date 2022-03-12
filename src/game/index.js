@@ -4,8 +4,9 @@ import Board from "./board/board";
 function Game() {
   const boxResolution = { width: 900, height: 900};
   const boxSize = { x: 20, y: 20 };
-  const [ direction, setDirection ] = useState('right');
-
+  const [ gameState, setGameState ] = useState('pause');
+  const [ eventKey, setEventKey ] = useState();
+  const [ score, setScore ] = useState(0);
   const defEvent = (key) => {
     switch(key) {
       case 'w':
@@ -20,19 +21,65 @@ function Game() {
       case 'a':
       case 'A':
       case 'ArrowLeft': return 'left';
-      default: return key;
     };
   };
 
   
   useEffect(()=> document.addEventListener('keydown', (event) => {
-    setDirection(defEvent(event.key));
-  }),[])
+    setEventKey(event.key);
+    
+  }),[]);
+
+  useEffect(()=> {
+      if( eventKey == 'Escape' ) { setGameState('pause') }
+      else if( ((eventKey == 'Escape' && gameState == 'pause') || ( defEvent(eventKey) != undefined )) && (gameState !== 'gameover') ) { setGameState('play') }
+      // if ( defEvent(eventKey) != undefined ) { 
+      //   setDirection(defEvent(eventKey))
+      //   console.log('!!');
+      // }
+      console.log(eventKey, gameState);
+
+
+  },[eventKey, gameState]);
+  
+  // useEffect(()=> document.addEventListener('keydown', (event) => {
+  //   const timer = setTimeout(() => {
+  //     let key = event.key;
+  //     if( key == 'Escape' ) { setGameState('pause') }
+  //     else if( key == 'Escape' && gameState == 'pause' ) { setGameState('play') }
+  //     else if ( defEvent(key) != undefined ) { 
+  //       setDirection(defEvent(key))
+  //       console.log('!!');
+  //     }
+  //     console.log(key, gameState);
+  //   }, 0)
+
+  //   return () => clearTimeout(timer);
+
+  // }),[]);
+
+
+  const scoreHandler = (score) => {
+     setScore(score);
+  };
+
+  const gameStateHandler = (gameState) => {
+    setGameState(gameState);
+  };
+
+  const Info = () => {
+    return(
+      <div>
+        <h1>Score: {score}</h1>
+      </div>
+    )
+  }
 
   return (
     <div className="game">
       <div className="game-board">
-        <Board boxResolution={ boxResolution } boxSize={ boxSize } direction={ direction }/>
+        <Board boxResolution={ boxResolution } boxSize={ boxSize } eventKey={eventKey} gameState={gameState}  scoreHandler={scoreHandler} gameStateHandler={gameStateHandler}/>
+        <Info />
       </div>
     </div>
   );
