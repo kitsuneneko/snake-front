@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
 import Board from "./board/board";
+import LeaderBoard from "./leaderboard";
+
+const leaderboardData = [
+  { id: 1, nickname: 'a', score: '1000' },
+  { id: 2, nickname: 'aa', score: '900' },
+  { id: 3, nickname: 'aaa', score: '800' },
+  { id: 4, nickname: 'aaaa', score: '770' },
+  { id: 5, nickname: 'aaaaa', score: '600' }
+];
 
 function Game() {
   const boxResolution = { width: 900, height: 900};
@@ -81,6 +90,7 @@ function Game() {
         <Board boxResolution={ boxResolution } boxSize={ boxSize } eventKey={eventKey} gameState={gameState}  scoreHandler={scoreHandler} gameStateHandler={gameStateHandler}/>
         <Info />
       </div>
+      <LeaderBoard leaderboardData={leaderboardData}/>
     </div>
   );
 }

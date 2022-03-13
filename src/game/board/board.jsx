@@ -8,6 +8,8 @@ const createBoard = (x, y) => {
     return(Array(y).fill().map( col => Array(x).fill( { type: 'cell', tailcount: 0 } )));
 }
 
+const setTimer = () => Math.floor(Math.random() * ( 60 - 15 )) + 15;
+
 const dir = { 
     right: { x: 1, y: 0 }, 
     left: { x: -1, y: 0 },
@@ -15,6 +17,8 @@ const dir = {
     down: { x: 0, y: -1 },
     pause: { x: 0, y: 0 }
   };
+
+const food = [ 'food', 'rareFood', 'goldenFood' ];
 
 
 const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, gameStateHandler }) => {
@@ -25,6 +29,7 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, game
     const [ cells, setCells ] = useState(createBoard(x,y));
     const [ score, setScore ] = useState(0);
     const [ tailsize, setTailsize ] = useState(5);
+    const [ foodTimer, setFoodTimer ] = useState(setTimer());
 
     const defEvent = (key) => {
         switch(key) {
@@ -64,7 +69,7 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, game
         // res[6][6].type = 'food';
         const [ x , y ] = [Math.floor(Math.random() * sizeX), Math.floor(Math.random() * sizeY)]
         if( res[y][x].type !== 'head' || res[y][x].type !== 'tail'){
-            res[y][x].type = 'goldenFood';
+            res[y][x].type = food[Math.floor(Math.random() * food.length)];
         }
         
         return res;
@@ -108,8 +113,18 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, game
 
     // check food
         if(res[idy][idx].type == 'goldenFood'){
-            setTailsize(tailsize + 1);
+            setTailsize(tailsize + 4);
             setScore(score + 10);
+            scoreHandler(score);
+        }
+        else if(res[idy][idx].type == 'rareFood'){
+            setTailsize(tailsize + 2);
+            setScore(score + 5);
+            scoreHandler(score);
+        }
+        else if(res[idy][idx].type == 'food'){
+            setTailsize(tailsize + 1);
+            setScore(score + 1);
             scoreHandler(score);
         }
     
@@ -123,12 +138,15 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, game
 
         res[idy][idx].type = 'head';
 
-
-        if(Math.random() > 0.99){
+    //create food
+        if(foodTimer === 0){
             res = makeFood(res, x, y);
-            
+            setFoodTimer(setTimer());
         }
-        console.log(Math.random())
+        else { 
+            setFoodTimer( foodTimer - 1 );
+            console.log('Food', foodTimer);
+        }
     
     
         return res;
