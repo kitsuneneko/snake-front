@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Board from "./board/board";
 import LeaderBoard from "./leaderboard";
 
-const leaderboardData = [
+const leaderboarddata = [
   { id: 1, nickname: 'a', score: '1000' },
   { id: 2, nickname: 'aa', score: '900' },
   { id: 3, nickname: 'aaa', score: '800' },
@@ -10,12 +10,55 @@ const leaderboardData = [
   { id: 5, nickname: 'aaaaa', score: '600' }
 ];
 
+
+
 function Game() {
   const boxResolution = { width: 900, height: 900};
-  const boxSize = { x: 20, y: 20 };
+  const boxSize = { x: 15, y: 15 };
+  
+  const [ leaderboardData, setLeaderboardData ] =  useState(leaderboarddata);
   const [ gameState, setGameState ] = useState('pause');
   const [ eventKey, setEventKey ] = useState();
   const [ score, setScore ] = useState(0);
+
+
+  const promise = async (url) => {
+    const data = await fetch(url)
+    .then((res) => {
+      return res.json();
+    }).catch(err=>console.log(err));
+
+    if(data !== undefined)
+      setLeaderboardData(data);
+  };
+
+  const data = { player: 'example', score: 300 };
+  const postreq = async () => {
+    const request = await fetch('/gameover', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    .then(res => res.json())
+    .catch(err => console.log('errrrr', err));
+    return request;
+  };
+
+  useEffect(() => {
+
+  }, [gameState])
+
+  const url = '/leaderboard';
+
+  useEffect(() => {
+    promise(url);
+    postreq();
+  },[])
+
+
+
   const defEvent = (key) => {
     switch(key) {
       case 'w':
@@ -44,12 +87,13 @@ function Game() {
       else if( ((eventKey == 'Escape' && gameState == 'pause') || ( defEvent(eventKey) != undefined )) && (gameState !== 'gameover') ) { setGameState('play') }
       // if ( defEvent(eventKey) != undefined ) { 
       //   setDirection(defEvent(eventKey))
-      //   console.log('!!');
       // }
       console.log(eventKey, gameState);
 
 
   },[eventKey, gameState]);
+
+
   
   // useEffect(()=> document.addEventListener('keydown', (event) => {
   //   const timer = setTimeout(() => {
@@ -87,7 +131,7 @@ function Game() {
   return (
     <div className="game">
       <div className="game-board">
-        <Board boxResolution={ boxResolution } boxSize={ boxSize } eventKey={eventKey} gameState={gameState}  scoreHandler={scoreHandler} gameStateHandler={gameStateHandler}/>
+        <Board boxResolution={ boxResolution } boxSize={ boxSize } eventKey={eventKey} gameState={gameState}  scoreHandler={scoreHandler} score={score} gameStateHandler={gameStateHandler}/>
         <Info />
       </div>
       <LeaderBoard leaderboardData={leaderboardData}/>

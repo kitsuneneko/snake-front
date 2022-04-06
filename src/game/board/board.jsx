@@ -21,13 +21,13 @@ const dir = {
 const food = [ 'food', 'rareFood', 'goldenFood' ];
 
 
-const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, gameStateHandler }) => {
+const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, score, gameStateHandler }) => {
     const { x, y } = boxSize;
     const cellSize = { width: boxResolution?.width / x, height: boxResolution?.height / y };
 
     const [ direction, setDirection ] = useState('right');
     const [ cells, setCells ] = useState(createBoard(x,y));
-    const [ score, setScore ] = useState(0);
+    const [ head, setHead ] = useState({ x: 2, y: 2 });
     const [ tailsize, setTailsize ] = useState(5);
     const [ foodTimer, setFoodTimer ] = useState(setTimer());
 
@@ -59,7 +59,8 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, game
     const start = (arr) => {
     
         let res = JSON.parse(JSON.stringify(arr));
-        res[2][2].type = 'head';
+        // res[2][2].type = 'head';
+        res[head.y][head.x].type = 'head';
         return res;
     }
     
@@ -83,14 +84,24 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, game
         let { x: idx, y: idy } = dir?.[direction];
         // let idx = 1, idy = 0;
         console.log(dir?.[direction]);
-        res = res.map( (row, y) => row.map( (el, x) => { 
-            if(el?.type == 'head') {
-                idx += x;
-                idy += y;
-                el = { type: 'tail', tailcount: tailsize};
-            } 
-            return el;
-        }));
+        // res = res.map( (row, y) => row.map( (el, x) => { 
+        //     if(el?.type == 'head') {
+        //         idx += x;
+        //         idy += y;
+        //         // el = { type: 'tail', tailcount: tailsize};
+        //         el.type = 'tail';
+        //         el.tailcount = tailsize;
+        //     } 
+        //     return el;
+        // }));
+
+        
+            idx += head.x;
+            idy += head.y;
+            // el = { type: 'tail', tailcount: tailsize};
+            res[head.y][head.x].type = 'tail';
+            res[head.y][head.x].tailcount = tailsize;
+        
     
         res = res.map( (row, y) => row.map( (el, x) => { 
             if(el?.tailcount > 1) {
@@ -114,18 +125,15 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, game
     // check food
         if(res[idy][idx].type == 'goldenFood'){
             setTailsize(tailsize + 4);
-            setScore(score + 10);
-            scoreHandler(score);
+            scoreHandler(score => score + 10);
         }
         else if(res[idy][idx].type == 'rareFood'){
             setTailsize(tailsize + 2);
-            setScore(score + 5);
-            scoreHandler(score);
+            scoreHandler(score => score + 5);
         }
         else if(res[idy][idx].type == 'food'){
             setTailsize(tailsize + 1);
-            setScore(score + 1);
-            scoreHandler(score);
+            scoreHandler(score => score + 1);
         }
     
     
@@ -137,6 +145,7 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, game
 
 
         res[idy][idx].type = 'head';
+        setHead({ x: idx, y: idy });
 
     //create food
         if(foodTimer === 0){
@@ -156,13 +165,7 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, game
 
     useEffect(() => { 
         setCells(start(makeFood(cells, x, y)))
-
-        // setInterval(() => {
-        //     makeFood(cells, x, y)
-        // }, 10000);
-
     },[])
-    const req = true;
 
     useEffect(() => { 
         if(gameState === 'play'){
@@ -171,7 +174,7 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, game
                     checkNewDirection();
                     console.log('direction', direction);
                     setCells(move(cells, direction));
-            }, 100); 
+            }, 1); 
 
             return () =>  clearTimeout(timer);
         }
@@ -179,15 +182,6 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, game
             start(cells);
         }
     },[cells, gameState])
-
-    // useEffect(() => { 
-    //     const timer = setInterval(() => {
-    //         setCells(makeFood(cells, x, y))
-    //     }, 1000); 
-
-    //     return () => clearInterval(timer);
-    // },[cells])
-
 
     const board = cells.map( (row, y) => row.map( (value, x) => <Cell key={`${x}-${y}`} props={ value } cellSize={ cellSize }/> ) );
 
