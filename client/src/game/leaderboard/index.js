@@ -12,9 +12,9 @@ const LeaderBoard = ({ leaderboardData }) => {
 
 
     return(
-        <ul>
+        <ol>
             { list }
-        </ul>
+        </ol>
     );
 };
 

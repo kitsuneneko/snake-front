@@ -17,12 +17,12 @@ function Game() {
   const boxSize = { x: 15, y: 15 };
   
   const [ leaderboardData, setLeaderboardData ] =  useState(leaderboarddata);
-  const [ gameState, setGameState ] = useState('pause');
+  const [ gameState, setGameState ] = useState('newgame');
   const [ eventKey, setEventKey ] = useState();
   const [ score, setScore ] = useState(0);
 
 
-  const promise = async (url) => {
+  const promise = async (url = '/leaderboard') => {
     const data = await fetch(url)
     .then((res) => {
       return res.json();
@@ -32,8 +32,8 @@ function Game() {
       setLeaderboardData(data);
   };
 
-  const data = { player: 'example', score: 300 };
-  const postreq = async () => {
+  
+  const postreq = async (data = { player: 'example', score: 300}) => {
     const request = await fetch('/gameover', {
       method: 'POST',
       headers: {
@@ -47,16 +47,16 @@ function Game() {
   };
 
   useEffect(() => {
-
+    if(gameState === 'gameover') {
+      const player = prompt('Your nickname', 'player') || 'player';
+      postreq({ player, score });
+    }
+    else if(gameState === 'newgame')
+    {
+      promise();
+      setScore(0);
+    }
   }, [gameState])
-
-  const url = '/leaderboard';
-
-  useEffect(() => {
-    promise(url);
-    postreq();
-  },[])
-
 
 
   const defEvent = (key) => {
@@ -84,32 +84,14 @@ function Game() {
 
   useEffect(()=> {
       if( eventKey == 'Escape' ) { setGameState('pause') }
-      else if( ((eventKey == 'Escape' && gameState == 'pause') || ( defEvent(eventKey) != undefined )) && (gameState !== 'gameover') ) { setGameState('play') }
-      // if ( defEvent(eventKey) != undefined ) { 
-      //   setDirection(defEvent(eventKey))
-      // }
+      else if( ((eventKey == 'Escape' && gameState == 'pause') || ( defEvent(eventKey) != undefined )) && (gameState !== 'gameover') )
+       { setGameState('play') }
+      else if (gameState == 'gameover' && ['r','R'].includes(eventKey))
+      { setGameState('newgame'); }
       console.log(eventKey, gameState);
 
 
   },[eventKey, gameState]);
-
-
-  
-  // useEffect(()=> document.addEventListener('keydown', (event) => {
-  //   const timer = setTimeout(() => {
-  //     let key = event.key;
-  //     if( key == 'Escape' ) { setGameState('pause') }
-  //     else if( key == 'Escape' && gameState == 'pause' ) { setGameState('play') }
-  //     else if ( defEvent(key) != undefined ) { 
-  //       setDirection(defEvent(key))
-  //       console.log('!!');
-  //     }
-  //     console.log(key, gameState);
-  //   }, 0)
-
-  //   return () => clearTimeout(timer);
-
-  // }),[]);
 
 
   const scoreHandler = (score) => {
@@ -121,6 +103,13 @@ function Game() {
   };
 
   const Info = () => {
+    let msg = '';
+    useEffect(() => {
+        if( gameState == 'gameover' )
+          { msg = <h1>Press R to start new game</h1>}
+        else { msg = <h1>Score: {score}</h1> }
+    },[gameState])
+
     return(
       <div>
         <h1>Score: {score}</h1>

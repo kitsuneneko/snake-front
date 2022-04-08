@@ -48,12 +48,17 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, scor
         };
       };
 
+      console.log('eventKey:', eventKey);
+      console.log('diir:', direction);
       const checkNewDirection = () => {
           const newDir = defEvent(eventKey);
-          const { x: oldX, y: oldY } = dir?.[direction];
-          const { x: newX, y: newY } = dir?.[newDir];
-          if(((oldX + newX === 0) && (oldY + newY === 0)) || (newDir === undefined)) { console.log('op') }
-          else { setDirection(newDir); }
+          if (newDir !== undefined) 
+          {
+            const { x: oldX, y: oldY } = dir?.[direction];
+            const { x: newX, y: newY } = dir?.[newDir];
+            if(((oldX + newX === 0) && (oldY + newY === 0))) { console.log('op') }
+            else { setDirection(newDir); }
+          }
       }
     
     const start = (arr) => {
@@ -65,7 +70,7 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, scor
     }
     
     
-    const makeFood = (arr, sizeX, sizeY) => {
+    const makeFood = (arr, sizeX = x, sizeY = y) => {
         let res = JSON.parse(JSON.stringify(arr));
         // res[6][6].type = 'food';
         const [ x , y ] = [Math.floor(Math.random() * sizeX), Math.floor(Math.random() * sizeY)]
@@ -164,8 +169,14 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, scor
     console.log('Score:',score)
 
     useEffect(() => { 
-        setCells(start(makeFood(cells, x, y)))
-    },[])
+        if(gameState == 'newgame'){
+            // setCells(createBoard(x,y));
+            setCells(start(makeFood(createBoard(x,y))));
+            setTailsize(5);
+        }
+    },[gameState])
+
+    // useEffect(() => { if(gameState == 'play') { checkNewDirection() } }, [eventKey])
 
     useEffect(() => { 
         if(gameState === 'play'){
@@ -174,12 +185,9 @@ const Board = ({ boxSize, boxResolution, gameState, eventKey, scoreHandler, scor
                     checkNewDirection();
                     console.log('direction', direction);
                     setCells(move(cells, direction));
-            }, 1); 
+            }, (800 - score * 50)); 
 
             return () =>  clearTimeout(timer);
-        }
-        else if(gameState === 'gameover') {
-            start(cells);
         }
     },[cells, gameState])
 
