@@ -1,7 +1,6 @@
-// server/index.js
-
 const express = require("express");
 const bodyParser = require('body-parser');
+const path = require("path");
 const { Client } = require('pg');
 const jsonParser = bodyParser.json();
 
@@ -26,6 +25,7 @@ client.connect();
 
 
 const app = express();
+
 // app.use(cors);
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -35,6 +35,12 @@ app.use(function(req, res, next) {
 // app.use((req, res, next) => {
 //   res.header("Access-Control-Allow-Origin", "*")
 // }) 
+
+app.use(express.static(path.join(__dirname, '../client/build')));
+
+app.get('/', (request, response) => {
+  response.sendFile(path.join(__dirname+'../client/build/index.html'));
+});
 
 app.get("/api", (req, res) => {
     res.json({ message: "Hello from server!" });
