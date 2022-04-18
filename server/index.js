@@ -12,7 +12,7 @@ const client = new Client({
   user: 'postgres',
   host: 'localhost',
   database: 'snakedb',
-  password: 'qweasdzxc12345',
+  password: '1234',
   port: 5432
 })
 
